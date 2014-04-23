@@ -1,5 +1,10 @@
 $global:condaEnvName = $args[0]
 
+# fix for pre-PS3
+if (-not $PSScriptRoot) { 
+    $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent 
+}
+
 $env:ANACONDA_ENVS = (get-item $PSScriptRoot).parent.FullName + '\envs'
 
 if (-not $condaEnvName) {
