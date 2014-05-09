@@ -3,7 +3,11 @@ Param(
     [switch]$updateRegistry
 )
 
-$installPath = 
+# fix for pre-PS3
+if (-not $PSScriptRoot) { 
+    $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent 
+}
+
 # Get location of Anaconda installation
 $anacondaInstallPath = (get-item $PSScriptRoot).parent.FullName
 
@@ -13,7 +17,7 @@ $env:ANACONDA_ENVS = $anacondaInstallPath + '\envs'
 Function Set-Installpath {
     # Updates Python installpath to be the Anaconda root location
     Try {
-        write-host "Setting Python Installpath back to default location..."
+        write-host "Setting Python Installpath key back to $anacondaInstallPath..."
         Set-ItemProperty -Path hklm:\Software\python\pythoncore\2.7\installpath -Name "(default)" -Value "$anacondaInstallPath" -ErrorAction Stop
     }
     Catch {

@@ -3,8 +3,13 @@ Param(
     [switch]$updateRegistry
 )
 
+# fix for pre-PS3
+if (-not $PSScriptRoot) { 
+    $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent 
+}
+
 # Get location of Anaconda installation
-$global:anacondaInstallPath = (get-item $PSScriptRoot).parent.FullName
+$anacondaInstallPath = (get-item $PSScriptRoot).parent.FullName
 
 # Build ENVS path
 $env:ANACONDA_ENVS = $anacondaInstallPath + '\envs'
@@ -12,7 +17,7 @@ $env:ANACONDA_ENVS = $anacondaInstallPath + '\envs'
 Function Set-Installpath {
     # Updates Python installpath to be the Anaconda root location
     Try {
-        write-host "Setting Python Installpath to $env:ANACONDA_ENVS..."
+        write-host "Setting Python Installpath key to $env:ANACONDA_ENVS..."
         Set-ItemProperty -Path hklm:\Software\python\pythoncore\2.7\installpath -Name "(default)" -Value "$env:ANACONDA_ENVS" -ErrorAction Stop
     }
     Catch {
@@ -26,7 +31,7 @@ if (-not $condaEnvName) {
     write-host
     write-host "Deactivates previously activated Conda environment, then activates the chosen one."
     write-host "Use -UpdateRegistry to set Python installpath to the activated virtualenv.  Useful"
-    write-host "for installing modules compiled into Windows installers."
+    write-host "for installing libraries."
     write-host
     write-host
     exit
