@@ -1,12 +1,32 @@
-$global:condaEnvName = $args[0]
+Param(
+    [string]$global:condaEnvName,
+    [switch]$updateRegistry
+)
 
-$env:ANACONDA_ENVS = (get-item $PSScriptRoot).parent.FullName + '\envs'
+# Get location of Anaconda installation
+$global:anacondaInstallPath = (get-item $PSScriptRoot).parent.FullName
+
+# Build ENVS path
+$env:ANACONDA_ENVS = $anacondaInstallPath + '\envs'
+
+Function Set-Installpath {
+    # Updates Python installpath to be the Anaconda root location
+    Try {
+        write-host "Setting Python Installpath to $env:ANACONDA_ENVS..."
+        Set-ItemProperty -Path hklm:\Software\python\pythoncore\2.7\installpath -Name "(default)" -Value "$env:ANACONDA_ENVS" -ErrorAction Stop
+    }
+    Catch {
+        write-warning "Unable to update Python path in registry.  Need to run as admin."
+    }
+}
 
 if (-not $condaEnvName) {
     write-host
-    write-host "Usage: activate envname"
+    write-host "Usage: activate envname [-UpdateRegistry]"
     write-host
     write-host "Deactivates previously activated Conda environment, then activates the chosen one."
+    write-host "Use -UpdateRegistry to set Python installpath to the activated virtualenv.  Useful"
+    write-host "for installing modules compiled into Windows installers."
     write-host
     write-host
     exit
@@ -22,13 +42,7 @@ if (-not (test-path $env:ANACONDA_ENVS\$condaEnvName\Python.exe)) {
 
 # Deactivate a previous activation if it is live
 if (test-path env:\CONDA_DEFAULT_ENV) {
-    write-host
-    # This search/replace removes the previous env from the path
-    write-host "Deactivating environment `"$env:CONDA_DEFAULT_ENV...`""
-    $env:PATH = $env:ANACONDA_BASE_PATH
-    remove-item env:\CONDA_DEFAULT_ENV
-    $function:prompt = $function:condaUserPrompt
-    remove-item function:\condaUserPrompt
+    invoke-expression deactivate.ps1
 }
 
 $env:CONDA_DEFAULT_ENV = $condaEnvName
@@ -36,6 +50,9 @@ write-host
 write-host "Activating environment `"$env:CONDA_DEFAULT_ENV...`""
 $env:ANACONDA_BASE_PATH = $env:PATH
 $env:PATH="$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\;$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\Scripts\;$env:ANACONDA_BASE_PATH"
+
+if ($updateRegistry) {Set-Installpath}
+    
 write-host
 write-host
 
