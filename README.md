@@ -1,6 +1,9 @@
 PSCondaEnvs
 ===========
 
+Adapted to my env, 2015.09.09
+
+
 Drop in replacement scripts that replicate Conda's activate/deactivate functions in Powershell.
 
 
