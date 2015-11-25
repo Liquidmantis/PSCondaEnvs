@@ -1,10 +1,19 @@
+<#
+.SYNOPSIS
+Activates a conda virtualenv.
+
+.DESCRIPTION
+Activate.ps1 and deactivate.ps1 recreates the existing virtualenv BAT files in PS1 format so they "just work" inside a Powershell session.  
+This isn't idiomatic Powershell, just a translation.
+#>
+
 Param(
-    [string]$global:condaEnvName,
-    [switch]$updateRegistry
+    [string]$global:condaEnvName
 )
 
-# fix for pre-PS3
-if (-not $PSScriptRoot) { 
+# fix for pre-PS3 - creates $PSScriptRoot
+if (-not $PSScriptRoot)
+{ 
     $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent 
 }
 
@@ -14,58 +23,46 @@ $anacondaInstallPath = (get-item $PSScriptRoot).parent.FullName
 # Build ENVS path
 $env:ANACONDA_ENVS = $anacondaInstallPath + '\envs'
 
-Function Set-Installpath {
-    # Updates Python installpath to be the Anaconda root location
-    Try {
-        write-host "Setting Python Installpath key to $env:ANACONDA_ENVS..."
-        Set-ItemProperty -Path hklm:\Software\python\pythoncore\2.7\installpath -Name "(default)" -Value "$env:ANACONDA_ENVS" -ErrorAction Stop
-    }
-    Catch {
-        write-warning "Unable to update Python path in registry.  Need to run as admin."
-    }
-}
-
-if (-not $condaEnvName) {
-    write-host
-    write-host "Usage: activate envname [-UpdateRegistry]"
-    write-host
-    write-host "Deactivates previously activated Conda environment, then activates the chosen one."
-    write-host "Use -UpdateRegistry to set Python installpath to the activated virtualenv.  Useful"
-    write-host "for installing libraries."
-    write-host
-    write-host
+if (-not $condaEnvName)
+{
+    Write-Host
+    Write-Host "Usage: activate envname [-UpdateRegistry]"
+    Write-Host
+    Write-Host "Deactivates previously activated Conda environment, then activates the chosen one."
+    Write-Host
+    Write-Host
     exit
 }
 
-if (-not (test-path $env:ANACONDA_ENVS\$condaEnvName\Python.exe)) {
-    write-host
-    write-warning "No environment named `"$condaEnvName`" exists in $env:ANACONDA_ENVS."
-    write-host
-    write-host
+if (-not (Test-Path $env:ANACONDA_ENVS\$condaEnvName\Python.exe))
+{
+    Write-Host
+    Write-Warning "No environment named `"$condaEnvName`" exists in $env:ANACONDA_ENVS."
+    Write-Host
+    Write-Host
     exit 
 }
 
 # Deactivate a previous activation if it is live
-if (test-path env:\CONDA_DEFAULT_ENV) {
-    invoke-expression deactivate.ps1
+if (Test-Path env:\CONDA_DEFAULT_ENV) {
+    Invoke-Expression deactivate.ps1
 }
 
 $env:CONDA_DEFAULT_ENV = $condaEnvName
-write-host
-write-host "Activating environment `"$env:CONDA_DEFAULT_ENV...`""
+Write-Host
+Write-Host "Activating environment `"$env:CONDA_DEFAULT_ENV...`""
 $env:ANACONDA_BASE_PATH = $env:PATH
-$env:PATH="$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\;$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\Scripts\;$env:ANACONDA_BASE_PATH"
+$env:PATH="$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\;$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\Scripts\;$env:ANACONDA_BASE_PATH"    
+Write-Host
+Write-Host
 
-if ($updateRegistry) {Set-Installpath}
-    
-write-host
-write-host
-
+# Capture existing user prompt
 function global:condaUserPrompt {''}
 $function:condaUserPrompt = $function:prompt
 
-function global:prompt {
-    # Add a prefix to the current prompt, but don't discard it.
-    write-host "[$condaEnvName] " -nonewline -ForegroundColor Red
+function global:prompt
+{
+    # Add the virtualenv prefix to the current user prompt.
+    Write-Host "[$condaEnvName] " -nonewline -ForegroundColor Red
     & $function:condaUserPrompt
 }
