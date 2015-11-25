@@ -1,6 +1,9 @@
 PSCondaEnvs
 ===========
 
+Adapted to my env, 2015.09.09
+
+
 Drop in replacement scripts that replicate Conda's activate/deactivate functions in Powershell.
 
 
@@ -10,6 +13,17 @@ Simply copy activate.ps1 and deactivate.ps1 into your Anaconda\Scripts directory
 ###Added Features:
 The optional -UpdateRegistry switch has been added which will update the Python installpath to be the activated virtualenv.  I added this for installing compiled modules which detect the Python path from the registry.
 THIS SHOULD BE USED WITH EXTREME CAUTION!  This has only been tested on my system and is hardcoded to the 2.7 installpath.  This setting is also persistent unlike the session-based ephemeral virtualenv activation.  Deactivate.ps1 will detect and prompt for reverting the change if a virtualenv hasn't been properly deactivated.
+
+###Ensure Powershell Execution Policy is set
+To run any powerhsell command you need to have execution rights which are off by default
+Run the following to enable:
+
+  Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+  
+and to view policy
+
+  Get-ExecutionPolicy -List | Format-Table -AutoSize
+  
 
 ###Credit:
 * Original Conda batch files.
