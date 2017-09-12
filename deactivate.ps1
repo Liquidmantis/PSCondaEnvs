@@ -53,3 +53,5 @@ if (Test-Path env:\CONDA_DEFAULT_ENV)
     Write-Host
     Write-Host
 }
+
+Copy-Item -Path "$anacondaInstallPath\Scripts\deactivate.ps1" -Destination "$env:ANACONDA_ENVS\$condaEnvName\Scripts"
