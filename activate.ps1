@@ -66,3 +66,5 @@ function global:prompt
     Write-Host "[$condaEnvName] " -nonewline -ForegroundColor Red
     & $function:condaUserPrompt
 }
+
+Copy-Item -Path "$anacondaInstallPath\Scripts\deactivate.ps1" -Destination "$env:ANACONDA_ENVS\$condaEnvName\Scripts"
