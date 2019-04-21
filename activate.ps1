@@ -53,6 +53,7 @@ Write-Host
 Write-Host "Activating environment `"$env:CONDA_DEFAULT_ENV...`""
 $env:ANACONDA_BASE_PATH = $env:PATH
 $env:PATH="$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\;$env:ANACONDA_ENVS\$env:CONDA_DEFAULT_ENV\Scripts\;$env:ANACONDA_BASE_PATH"    
+Copy-Item -Path "$anacondaInstallPath\Scripts\deactivate.ps1" -Destination "$anacondaInstallPath\envs\$condaEnvName\Scripts"
 Write-Host
 Write-Host
 
