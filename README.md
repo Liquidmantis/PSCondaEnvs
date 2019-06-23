@@ -16,7 +16,7 @@ The file is not digitally signed so the PowerShell will prevent it from running.
 
 `Unblock-File -Path C:\Users\{USERNAME}\Anaconda3\condabin\deactivate.ps1`
 
-Replace the {USERNAME} section with your username.
+Replace the `{USERNAME}` section with your username.
 
 ### Commands for managing the environments in PowerShell
 `activate {environment_name}`
